@@ -16,6 +16,7 @@ struct ContentView: View {
     @State var flag = true
     @State var result = false
     @State var answer = 0
+    @State var answerString = "Please proceed..."
     var body: some View {
         NavigationView {
             VStack {
@@ -54,6 +55,7 @@ struct ContentView: View {
                         }
                         else {
                             flag = false
+                          
                             //print("FLAG:",flag)
                             answer = Int(subString)!
                             break
@@ -62,13 +64,16 @@ struct ContentView: View {
                        }
                                 
                     }
+                    else {
+                        answerString = "Invalid s-expression syntax."
+                    }
                 }
                 .frame(width: 150, height: 50, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
                 .background(Color.blue)
                 .foregroundColor(Color.white)
                 .cornerRadius(16)
                 Spacer()
-                Text(result ? "Calculation: \(answer)" : "incorrect function syntax.")
+                Text(result ? "Calculation: \(answer)" : answerString)
             }
         }
       
