@@ -10,57 +10,56 @@ import SwiftUI
 struct ContentView: View {
     @State var myString = ""
     @State var subString = ""
-   // @State var regex = try! NSRegularExpression(pattern:#"[(](add|multiply)\s([0-9]+|[(](add|multiply)\s([0-9]+)\s[0-9]+[)])\s([0-9]+|[(](add|multiply)\s([0-9]+)\s[0-9]+[)])[)]"#)
-    @State var regex = try! NSRegularExpression(pattern: #"([(](add|multiply)\s((([0-9]|((\?1))))\s([0-9]|((\?1)))[)]))"#)
     @State var subRegex = try! NSRegularExpression(pattern:#"[(](add|multiply)\s([0-9]+)\s[0-9]+[)]"#)
     @State var flag = true
-    @State var result = false
+    @State var result = true
     @State var answer = 0
-    @State var answerString = "Please proceed..."
+    @State var answerString = "Please Proceed.."
     var body: some View {
         NavigationView {
             VStack {
                 TextField("Enter function", text: $myString)
                     .padding()
                     .multilineTextAlignment(.center)
-    
                 Spacer()
                 Button("check") {
+                    answerString = ""
                     answer = 0
                     subString = myString
                     flag = true
-                    result = regex.matches(myString)
-                    print(result)
+                    
                     if result {
-                        
                        while flag {
+                        print(subString)
                             let matchedString = findSubString()
+                        
+                        if matchedString == "" {
+                            answerString = "Invalid s-expression syntax."
+                            break
+                        }
                            let matchedArr = matchedString.components(separatedBy: CharacterSet(charactersIn: " ()"))
                             if matchedArr[1] == "add" {
                                let result = add(exp1: matchedArr[2], exp2: matchedArr[3])
-                                print(subString, matchedString, result)
                                 subString = subString.replacingOccurrences(of: matchedString, with: result)
-                               // print(subString)
-                                
                             }
                             else if matchedArr[1] == "multiply" {
                                 let result = multiply(exp1: matchedArr[2], exp2: matchedArr[3])
-                                 print(subString, matchedString, result)
                                  subString = subString.replacingOccurrences(of: matchedString, with: result)
-                               // print(subString, subString.count)
                             }
                         if subString.contains("add") || subString.contains("multiply") {
                             flag = true
-                            //print("FLAG:",flag)
                         }
                         else {
                             flag = false
-                          
-                            //print("FLAG:",flag)
-                            answer = Int(subString)!
+                            if let ans = Int(subString) {
+                                answer = ans
+                            }
+                            else {
+                                answerString = "Invalid s-expression syntax."
+                            }
                             break
                         }
-                            
+                      
                        }
                                 
                     }
@@ -73,7 +72,7 @@ struct ContentView: View {
                 .foregroundColor(Color.white)
                 .cornerRadius(16)
                 Spacer()
-                Text(result ? "Calculation: \(answer)" : answerString)
+                Text(answerString == "" || answerString == "Please Proceed.." ? "Calculation: \(answer)" : answerString)
             }
         }
       
@@ -85,6 +84,7 @@ struct ContentView: View {
             let range = match.range(at: 0)
             if let swiftRange = Range(range, in: subString) {
                 let result = subString[swiftRange]
+               // print("substring is: ",result)
                 return String(result)
             }
         }
@@ -99,7 +99,6 @@ struct ContentView: View {
         let result = Int(exp1)! * Int(exp2)!
         return String(result)
     }
-    
 }
 
 struct ContentView_Previews: PreviewProvider {
@@ -108,10 +107,3 @@ struct ContentView_Previews: PreviewProvider {
     }
 }
 
-extension NSRegularExpression {
-    func matches(_ string: String) -> Bool {
-        let range = NSRange(location:0, length: string.utf16.count)
-        return firstMatch(in: string, options:[], range:range) != nil
-    }
-    
-}
